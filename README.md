@@ -103,6 +103,9 @@ pip install -r requirements.txt
 
 ```bash
 python -m py_compile data_utils.py models.py train.py
+python train.py --train train.csv --test test.csv \
+    --model lstm --input-days 30 --pred-days 30 \
+    --batch-size 32 --epochs 5 --lr 1e-3
 ```
 
 深度学习框架使用 [PyTorch](https://pytorch.org/)。若需 GPU 训练请根据硬件选择合适的 CUDA 版本。

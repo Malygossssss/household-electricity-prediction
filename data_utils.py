@@ -6,8 +6,54 @@ from torch.utils.data import Dataset
 
 def load_and_aggregate(csv_path: str) -> pd.DataFrame:
     """Load minute level csv and aggregate to daily statistics."""
-    df = pd.read_csv(csv_path, parse_dates=["DateTime"])
+    header = 0
+    with open(csv_path, "r") as f:
+        first_line = f.readline().strip()
+        if not first_line.startswith("DateTime"):
+            header = None
+    col_names = [
+        "DateTime",
+        "Global_active_power",
+        "Global_reactive_power",
+        "Voltage",
+        "Global_intensity",
+        "Sub_metering_1",
+        "Sub_metering_2",
+        "Sub_metering_3",
+        "RR",
+        "NBJRR1",
+        "NBJRR5",
+        "NBJRR10",
+        "NBJBROU",
+    ]
+
+    df = pd.read_csv(
+        csv_path,
+        parse_dates=["DateTime"],
+        na_values="?",
+        header=header,
+        names=col_names,
+    )
     df["Date"] = df["DateTime"].dt.date
+
+    # ensure numeric columns have proper dtypes after converting '?' to NaN
+    numeric_cols = [
+        "Global_active_power",
+        "Global_reactive_power",
+        "Voltage",
+        "Global_intensity",
+        "Sub_metering_1",
+        "Sub_metering_2",
+        "Sub_metering_3",
+        "RR",
+        "NBJRR1",
+        "NBJRR5",
+        "NBJRR10",
+        "NBJBROU",
+    ]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
 
     agg_dict = {
         "Global_active_power": "sum",
@@ -24,6 +70,7 @@ def load_and_aggregate(csv_path: str) -> pd.DataFrame:
             agg_dict[col] = "mean"
 
     daily = df.groupby("Date").agg(agg_dict).reset_index()
+    daily = daily.fillna(method="ffill").fillna(0)
     return daily
 
 

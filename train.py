@@ -33,6 +33,8 @@ def evaluate(model, dataloader, device):
             out = model(x).cpu()
             preds.append(out)
             targets.append(y)
+    if not preds:
+        return float("nan"), float("nan")
     preds = torch.cat(preds).numpy()
     targets = torch.cat(targets).numpy()
     mse = mean_squared_error(targets, preds)
