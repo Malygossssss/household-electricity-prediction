@@ -59,3 +59,24 @@ class TransformerModel(nn.Module):
         x = x[:, -1]
         out = self.fc(x)
         return out
+
+
+class AttentionLSTMModel(nn.Module):
+    """LSTM enhanced with multi-head self-attention."""
+
+    def __init__(self, input_size: int, hidden_size: int = 64, num_layers: int = 2,
+                 nhead: int = 4, dropout: float = 0.2, output_len: int = 90):
+        super().__init__()
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
+                            batch_first=True, dropout=dropout)
+        self.attn = nn.MultiheadAttention(hidden_size, num_heads=nhead,
+                                          dropout=dropout, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_len)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [B, T, C]
+        out, _ = self.lstm(x)
+        attn_out, _ = self.attn(out, out, out)
+        out = attn_out[:, -1]
+        out = self.fc(out)
+        return out

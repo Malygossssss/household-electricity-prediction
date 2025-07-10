@@ -7,7 +7,8 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 from data_utils import load_and_aggregate, ElectricityDataset
-from models import LSTMModel, TransformerModel
+# from models import LSTMModel, TransformerModel
+from models import LSTMModel, TransformerModel, AttentionLSTMModel
 
 
 def train_one_epoch(model, dataloader, criterion, optimizer, device):
@@ -56,8 +57,10 @@ def main(args):
     input_size = len(train_dataset.feature_cols)
     if args.model == 'lstm':
         model = LSTMModel(input_size, output_len=args.pred_days)
-    else:
+    elif args.model == 'transformer':
         model = TransformerModel(input_size, output_len=args.pred_days)
+    else:
+        model = AttentionLSTMModel(input_size, output_len=args.pred_days)
     model.to(device)
 
     criterion = nn.MSELoss()
@@ -73,7 +76,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train electricity prediction model")
     parser.add_argument('--train', type=Path, default='train.csv', help='Training CSV file')
     parser.add_argument('--test', type=Path, default='test.csv', help='Test CSV file')
-    parser.add_argument('--model', choices=['lstm', 'transformer'], default='lstm')
+    parser.add_argument('--model', choices=['lstm', 'transformer', 'lstm_attn'], default='lstm')
     parser.add_argument('--input-days', type=int, default=90)
     parser.add_argument('--pred-days', type=int, default=90)
     parser.add_argument('--batch-size', type=int, default=32)

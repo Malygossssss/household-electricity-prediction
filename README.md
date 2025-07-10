@@ -91,21 +91,4 @@
 
 > **注**：请严格按此说明完成课程项目，否则将影响最终评分。
 
-## 环境配置
 
-项目代码基于 Python 3.12 开发，依赖包列在 `requirements.txt` 中，可通过以下命令安装：
-
-```bash
-pip install -r requirements.txt
-```
-
-可通过以下命令运行：
-
-```bash
-python -m py_compile data_utils.py models.py train.py
-python train.py --train train.csv --test test.csv \
-    --model lstm --input-days 30 --pred-days 30 \
-    --batch-size 32 --epochs 5 --lr 1e-3
-```
-
-深度学习框架使用 [PyTorch](https://pytorch.org/)。若需 GPU 训练请根据硬件选择合适的 CUDA 版本。
